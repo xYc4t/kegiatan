@@ -43,6 +43,20 @@ document.addEventListener('DOMContentLoaded', function () {
         calendar.gotoDate(new Date(year, selectedMonth, 1));
     });
 
+    function populateLocationDatalist() {
+        $.get('fetch_lokasi.php', function(data) {
+            const lokasiList = JSON.parse(data);
+            const datalist = document.getElementById('lokasiList');
+            datalist.innerHTML = '';
+    
+            lokasiList.forEach(lokasi => {
+                const option = document.createElement('option');
+                option.value = lokasi;
+                datalist.appendChild(option);
+            });
+        });
+    }    
+
     function handleDateClick(info) {
         resetModal();
         const selectedDate = info.dateStr;
@@ -63,8 +77,9 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#action').val('update');
         $('#deleteButton').show();
         $('#eventModal').modal('show');
+        console.log('Modal shown with start:', $('#mulai').val(), 'end:', $('#selesai').val()); //BUG HERE, DEBUG LATER.
     }
-
+    
     function updateEventLists() {
         const events = calendar.getEvents();
         const currentMonthStart = new Date(calendar.getDate().getFullYear(), calendar.getDate().getMonth(), 1);
@@ -91,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         if (!currentMonthEventList.children.length) {
-            currentMonthEventList.innerHTML = '<li class="list-group-item">Tidak ada kegiatan untuk yang sedang dilihat ^-^</li>';
+            currentMonthEventList.innerHTML = '<li class="list-group-item">Tidak ada kegiatan untuk bulan yang sedang dilihat ^-^</li>';
         }
         
         if (!upcomingEventList.children.length) {
@@ -129,4 +144,5 @@ document.addEventListener('DOMContentLoaded', function () {
     calendar.render();
     fetchEvents();
     populateMonthSelect();
+    populateLocationDatalist();
 });

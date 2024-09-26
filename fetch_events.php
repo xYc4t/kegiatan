@@ -1,6 +1,10 @@
 <?php
 include 'koneksi.php';
-$data = mysqli_query($conn, 'SELECT * FROM tb_jadwal');
+$data = mysqli_query($conn, '
+    SELECT j.*, l.lokasi 
+    FROM tb_jadwal j 
+    JOIN tb_lokasi l ON j.lokasi_id = l.id
+');
 $events = [];
 
 while ($d = mysqli_fetch_array($data)) {

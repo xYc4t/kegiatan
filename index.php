@@ -51,9 +51,10 @@
                             <input type="text" class="form-control" name="penganggung_jawab" id="penganggung_jawab" required>
                         </div>
                         <div class="form-group">
-                            <label for="lokasi">Lokasi</label>
-                            <input type="text" class="form-control" name="lokasi" id="lokasi" required>
-                        </div>
+    <label for="lokasi">Lokasi</label>
+    <input type="text" class="form-control" name="lokasi" id="lokasi" list="lokasiList" required>
+    <datalist id="lokasiList"></datalist>
+</div>
                         <div class="form-group">
                             <label for="peserta">Peserta</label>
                             <textarea name="peserta" class="form-control" id="peserta" rows="2"></textarea>

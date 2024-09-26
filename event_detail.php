@@ -3,7 +3,12 @@ include 'koneksi.php';
 
 $eventId = $_GET['id'] ?? null;
 if ($eventId) {
-    $data = mysqli_query($conn, "SELECT * FROM tb_jadwal WHERE id='$eventId'");
+    $data = mysqli_query($conn, "
+        SELECT j.*, l.lokasi 
+        FROM tb_jadwal j 
+        JOIN tb_lokasi l ON j.lokasi_id = l.id 
+        WHERE j.id='$eventId'
+    ");
     $event = mysqli_fetch_array($data);
 }
 ?>
