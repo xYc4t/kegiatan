@@ -1,6 +1,11 @@
 <?php
 include 'koneksi.php';
-$data = mysqli_query($conn, 'SELECT * FROM tb_lokasi');
+if (isset($_POST['lokasi_type']) && $_POST['lokasi_type'] == 'sekolah') {
+    $query = "SELECT * FROM tb_lokasi WHERE is_sekolah = 1";
+} else {
+    $query = "SELECT * FROM tb_lokasi WHERE is_sekolah = 0";
+}
+$data = mysqli_query($conn, $query);
 $lokasi = [];
 
 while ($d = mysqli_fetch_array($data)) {
@@ -8,4 +13,3 @@ while ($d = mysqli_fetch_array($data)) {
 }
 
 echo json_encode($lokasi);
-?>

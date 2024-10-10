@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalendar Kegiatan</title>
+    <script src='calendar.js'></script>
     <link rel="stylesheet" href="lib/bootstrap.min.css">
     <link href='lib/fullcalendar.css' rel='stylesheet' />
+    <script src="lib/jquery-3.2.1.min.js"></script>
+    <script src="lib/bootstrap.bundle.min.js"></script>
+    <script src='lib/fullcalendar.js'></script>
 </head>
 
 <body>
@@ -68,8 +69,32 @@
                         </div>
                         <div class="form-group">
                             <label for="lokasi">Lokasi</label>
-                            <input type="text" class="form-control" name="lokasi" id="lokasi" list="lokasiList" placeholder="Lokasi" required>
-                            <datalist id="lokasiList"></datalist>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_sekolah" value="sekolah" checked>
+                                    <label class="form-check-label" for="lokasi_type_sekolah">Di Sekolah</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_luar" value="luar">
+                                    <label class="form-check-label" for="lokasi_type_luar">Di Luar</label>
+                                </div>
+                            </div>
+                            <div id="lokasi_sekolah" style="display: block;">
+                                <select id="lokasi" name="lokasi" class="form-control">
+                                    <option value="" selected disabled hidden>Pilih Lokasi di Sekolah</option>
+                                    <?php
+                                    include 'koneksi.php';
+                                    $lokasi_sekolah_query = mysqli_query($conn, "SELECT id, lokasi FROM tb_lokasi WHERE is_sekolah = 1");
+                                    while ($lokasi_sekolah = mysqli_fetch_assoc($lokasi_sekolah_query)) {
+                                        echo '<option value="' . $lokasi_sekolah['id'] . '">' . $lokasi_sekolah['lokasi'] . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div id="lokasi_luar" style="display: none;">
+                                <input type="text" class="form-control" name="lokasi" id="lokasi" list="lokasiList" placeholder="Lokasi">
+                                <datalist id="lokasiList"></datalist>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="peserta">Peserta</label>
@@ -92,11 +117,21 @@
             </div>
         </div>
     </div>
-
-    <script src="lib/jquery-3.2.1.min.js"></script>
-    <script src="lib/bootstrap.bundle.min.js"></script>
-    <script src='lib/fullcalendar.js'></script>
-    <script src='calendar.js'></script>
+    <script>
+        $(document).ready(function() {
+            $('input[type="radio"][name="lokasi_type"]').change(function() {
+                if (this.value == 'sekolah') {
+                    $('#lokasi_sekolah').show();
+                    $('#lokasi_luar').hide();
+                    $('#lokasi_luar input[name="lokasi"]').removeAttr('required');
+                } else if (this.value == 'luar') {
+                    $('#lokasi_sekolah').hide();
+                    $('#lokasi_luar').show();
+                    $('#lokasi_luar input[name="lokasi"]').attr('required', 'required');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

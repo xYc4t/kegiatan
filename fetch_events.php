@@ -1,7 +1,7 @@
 <?php
 include 'koneksi.php';
 $data = mysqli_query($conn, '
-    SELECT j.*, l.lokasi 
+    SELECT j.*, l.lokasi, l.is_sekolah 
     FROM tb_jadwal j 
     JOIN tb_lokasi l ON j.lokasi_id = l.id
 ');
@@ -17,6 +17,7 @@ while ($d = mysqli_fetch_array($data)) {
             'divisi_pj' => $d['divisi_pj'],
             'penganggung_jawab' => $d['penganggung_jawab'],
             'lokasi' => $d['lokasi'],
+            'is_sekolah' => $d['is_sekolah'],
             'peserta' => $d['peserta']
         ]
     ];

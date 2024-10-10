@@ -4,7 +4,7 @@ include 'koneksi.php';
 $eventId = $_GET['id'] ?? null;
 if ($eventId) {
     $data = mysqli_query($conn, "
-    SELECT j.*, l.lokasi, d.divisi AS divisi_pj_name
+    SELECT j.*, l.lokasi, l.is_sekolah, d.divisi AS divisi_pj_name
     FROM tb_jadwal j
     JOIN tb_lokasi l ON j.lokasi_id = l.id
     JOIN tb_divisi_pj d ON j.divisi_pj_id = d.id
@@ -15,7 +15,7 @@ if ($eventId) {
 ?>
 
 <!DOCTYPE html>
-<html lang="id">
+<html>
 
 <head>
     <title>Detail Kegiatan</title>
@@ -27,7 +27,8 @@ if ($eventId) {
         <h1><?php echo $event['kegiatan']; ?></h1><br>
         <p><strong>Divisi:</strong> <?php echo $event['divisi_pj_name']; ?></p>
         <p><strong>Penganggung Jawab:</strong> <?php echo $event['penganggung_jawab']; ?></p>
-        <p><strong>Lokasi:</strong> <?php echo $event['lokasi']; ?></p>
+        <p><strong>Lokasi:</strong> <?php echo $event['lokasi']; ?> <?php if ($event['is_sekolah'] == 1) echo '(Di Sekolah)';
+                                                                    else echo '(Di Luar)'; ?></p>
         <p><strong>Peserta:</strong> <?php echo $event['peserta']; ?></p>
         <p><strong>Mulai:</strong> <?php echo $event['mulai']; ?></p>
         <p><strong>Berakhir:</strong> <?php echo $event['selesai']; ?></p><br>

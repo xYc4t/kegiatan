@@ -7,19 +7,23 @@ $action = $_POST['action'] ?? null;
 $kegiatan = $_POST['kegiatan'];
 $divisi_pj_id = $_POST['divisi_pj'];
 $penganggung_jawab = $_POST['penganggung_jawab'];
+$lokasi_type = $_POST['lokasi_type'];
 $lokasi = $_POST['lokasi'];
 $peserta = $_POST['peserta'];
 $mulai = $_POST['mulai'];
 $selesai = $_POST['selesai'];
 
-$result = mysqli_query($conn, "SELECT id FROM tb_lokasi WHERE lokasi = '$lokasi'");
-$lokasiId = null;
-
-if (mysqli_num_rows($result) > 0) {
-  $lokasiId = mysqli_fetch_assoc($result)['id'];
+if ($lokasi_type == 'sekolah') {
+  $lokasiId = mysqli_query($conn, "SELECT id FROM tb_lokasi WHERE lokasi = '$lokasi' AND is_sekolah = 1");
 } else {
-  mysqli_query($conn, "INSERT INTO tb_lokasi (lokasi) VALUES ('$lokasi')");
-  $lokasiId = mysqli_insert_id($conn);
+  $result = mysqli_query($conn, "SELECT id FROM tb_lokasi WHERE lokasi = '$lokasi' AND is_sekolah = 0");
+  $lokasiId = null;
+  if (mysqli_num_rows($result) > 0) {
+    $lokasiId = mysqli_fetch_assoc($result)['id'];
+  } else {
+    mysqli_query($conn, "INSERT INTO tb_lokasi (lokasi, is_sekolah) VALUES ('$lokasi', 0)");
+    $lokasiId = mysqli_insert_id($conn);
+  }
 }
 
 if ($action === 'delete' && !empty($eventId)) {

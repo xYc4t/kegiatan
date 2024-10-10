@@ -3,10 +3,12 @@ CREATE DATABASE IF NOT EXISTS db_kegiatan;
 USE db_kegiatan;
 
 DROP TABLE IF EXISTS tb_jadwal;
+DROP TABLE IF EXISTS tb_divisi_pj;
 DROP TABLE IF EXISTS tb_lokasi;
 
 CREATE TABLE tb_lokasi (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    is_sekolah BOOLEAN NOT NULL,
     lokasi VARCHAR(255) NOT NULL UNIQUE
 );
 
