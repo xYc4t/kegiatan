@@ -65,55 +65,71 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#eventModal').modal('show');
     }
 
-    function handleEventClick(info) {
-        const event = info.event;
-        $('#eventId').val(event.id);
-        $('#kegiatan').val(event.title);
-        $('#penganggung_jawab').val(event.extendedProps.penganggung_jawab);
-        $('#lokasi').val(event.extendedProps.lokasi);
-        $('#peserta').val(event.extendedProps.peserta);
-        $('#mulai').val(event.start.toISOString().slice(0, 16));
-        $('#selesai').val(event.end ? event.end.toISOString().slice(0, 16) : event.start.toISOString().slice(0, 16));
-        $('#action').val('update');
-        $('#deleteButton').show();
-        $('#eventModal').modal('show');
-        console.log('Modal shown with start:', $('#mulai').val(), 'end:', $('#selesai').val()); //BUG HERE, DEBUG LATER.
-    }
+//Jadi berantakan hanya untuk memperbaiki bug dimana saat click event di calendar, jam mulai dan jam berakhir tidak di set dengan benar.
+//Mungkin orang selanjutnya dapat mengoptimalkan kode ini? Good luck.
+function handleEventClick(info) {
+    const event = info.event;
+    const startDate = event.start;
+    const endDate = event.end;
+
+    $('#eventId').val(event.id);
+    $('#kegiatan').val(event.title);
+    $('#lokasi').val(event.extendedProps.lokasi);
+    $('#peserta').val(event.extendedProps.peserta);
+
+    const startMonth = startDate.getMonth() + 1;
+    const startDay = startDate.getDate();
+    const startHour = startDate.getHours();
+    const startMinute = startDate.getMinutes();
+
+    const endMonth = endDate ? endDate.getMonth() + 1 : startMonth;
+    const endDay = endDate ? endDate.getDate() : startDay;
+    const endHour = endDate ? endDate.getHours() : startHour;
+    const endMinute = endDate ? endDate.getMinutes() : startMinute;
+
+    $('#mulai').val(`${startDate.getFullYear()}-${startMonth.toString().padStart(2, '0')}-${startDay.toString().padStart(2, '0')}T${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`);
+    $('#selesai').val(`${endDate ? endDate.getFullYear() : startDate.getFullYear()}-${endMonth.toString().padStart(2, '0')}-${endDay.toString().padStart(2, '0')}T${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`);
+
+    $('#action').val('update');
+    $('#deleteButton').show();
+    $('#eventModal').modal('show');
+}
     
     function updateEventLists() {
         const events = calendar.getEvents();
         const currentMonthStart = new Date(calendar.getDate().getFullYear(), calendar.getDate().getMonth(), 1);
         const nextMonthStart = new Date(currentMonthStart);
         nextMonthStart.setMonth(nextMonthStart.getMonth() + 1);
-
+    
         currentMonthEventList.innerHTML = '';
         upcomingEventList.innerHTML = '';
-
-        events.forEach(event => {
-            const eventStart = new Date(event.start);
-            const listItem = document.createElement('li');
-            listItem.className = 'list-group-item';
-            listItem.innerText = `${event.start.toLocaleString('id-ID')}\n${event.title}`;
-            listItem.onclick = () => window.location.href = `event_detail.php?id=${event.id}`;
-
-            if (eventStart >= currentMonthStart && eventStart < nextMonthStart) {
+    
+        events.sort((a, b) => new Date(a.start) - new Date(b.start));
+    
+        const currentMonthEvents = events.filter(event => new Date(event.start) >= currentMonthStart && new Date(event.start) < nextMonthStart);
+        if (currentMonthEvents.length > 0) {
+            currentMonthEvents.forEach(event => {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item';
+                listItem.innerText = `${event.start.toLocaleString('id-ID')}\n${event.title}`;
+                listItem.onclick = () => window.location.href = `event_detail.php?id=${event.id}`;
                 currentMonthEventList.appendChild(listItem);
-            }
-
-            if (eventStart >= new Date()) {
-                upcomingEventList.appendChild(listItem);
-            }
-        });
-
-        if (!currentMonthEventList.children.length) {
+            });
+        } else {
             currentMonthEventList.innerHTML = '<li class="list-group-item">Tidak ada kegiatan untuk bulan yang sedang dilihat ^-^</li>';
         }
-        
-        if (!upcomingEventList.children.length) {
+    
+        const upcomingEvent = events.find(event => new Date(event.start) >= new Date());
+    
+        if (upcomingEvent) {
+            const listItem = document.createElement('li');
+            listItem.className = 'list-group-item';
+            listItem.innerText = `${upcomingEvent.start.toLocaleString('id-ID')}\n${upcomingEvent.title}`;
+            listItem.onclick = () => window.location.href = `event_detail.php?id=${upcomingEvent.id}`;
+            upcomingEventList.appendChild(listItem);
+        } else {
             upcomingEventList.innerHTML = '<li class="list-group-item">Tidak ada kegiatan mendatang :3</li>';
         }
-
-        monthSelect.value = '';
     }
 
     function resetModal() {
@@ -130,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#eventForm').on('submit', function(e) {
         e.preventDefault();
-        $.post('simpan.php', $(this).serialize(), function() {
+        $.post('event_action.php', $(this).serialize(), function() {
             fetchEvents();
             $('#eventModal').modal('hide');
         });

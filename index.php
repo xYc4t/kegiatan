@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="lib/bootstrap.min.css">
     <link href='lib/fullcalendar.css' rel='stylesheet' />
 </head>
+
 <body>
     <div class="container mt-4">
         <div class="row">
@@ -39,25 +41,39 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="simpan.php" method="POST" id="eventForm">
+                    <form action="event_action.php" method="POST" id="eventForm">
                         <input type="hidden" name="eventId" id="eventId">
                         <input type="hidden" name="action" id="action">
                         <div class="form-group">
                             <label for="kegiatan">Nama Kegiatan</label>
-                            <input type="text" name="kegiatan" class="form-control" id="kegiatan" rows="2" required>
+                            <input type="text" name="kegiatan" class="form-control" id="kegiatan" rows="2" placeholder="Nama Kegiatan" required>
+                        </div>
+                        <p>Penanggung Jawab</p>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <select id="divisi_pj" name="divisi_pj" class="form-control">
+                                    <option value="" selected disabled hidden>Pilih Divisi</option>
+                                    <?php
+                                    include 'koneksi.php';
+                                    $divisi_pj_query = mysqli_query($conn, "SELECT id, divisi FROM tb_divisi_pj");
+                                    while ($divisi_pj = mysqli_fetch_assoc($divisi_pj_query)) {
+                                        echo '<option value="' . $divisi_pj['id'] . '">' . $divisi_pj['divisi'] . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <input type="text" id="penganggung_jawab" name="penganggung_jawab" class="form-control" placeholder="Nama">
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="penganggung_jawab">Penganggung Jawab</label>
-                            <input type="text" class="form-control" name="penganggung_jawab" id="penganggung_jawab" required>
+                            <label for="lokasi">Lokasi</label>
+                            <input type="text" class="form-control" name="lokasi" id="lokasi" list="lokasiList" placeholder="Lokasi" required>
+                            <datalist id="lokasiList"></datalist>
                         </div>
-                        <div class="form-group">
-    <label for="lokasi">Lokasi</label>
-    <input type="text" class="form-control" name="lokasi" id="lokasi" list="lokasiList" required>
-    <datalist id="lokasiList"></datalist>
-</div>
                         <div class="form-group">
                             <label for="peserta">Peserta</label>
-                            <textarea name="peserta" class="form-control" id="peserta" rows="2"></textarea>
+                            <textarea name="peserta" class="form-control" id="peserta" rows="2" placeholder="Peserta"></textarea>
                         </div>
                         <div class="form-group">
                             <label for="mulai">Tanggal Mulai</label>
@@ -82,4 +98,5 @@
     <script src='lib/fullcalendar.js'></script>
     <script src='calendar.js'></script>
 </body>
+
 </html>

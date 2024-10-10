@@ -14,6 +14,7 @@ while ($d = mysqli_fetch_array($data)) {
         'start' => $d['mulai'],
         'end' => $d['selesai'],
         'extendedProps' => [
+            'divisi_pj' => $d['divisi_pj'],
             'penganggung_jawab' => $d['penganggung_jawab'],
             'lokasi' => $d['lokasi'],
             'peserta' => $d['peserta']
@@ -22,4 +23,3 @@ while ($d = mysqli_fetch_array($data)) {
 }
 
 echo json_encode($events);
-?>

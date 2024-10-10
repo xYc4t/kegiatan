@@ -5,6 +5,7 @@ $eventId = $_POST['eventId'] ?? null;
 $action = $_POST['action'] ?? null;
 
 $kegiatan = $_POST['kegiatan'];
+$divisi_pj_id = $_POST['divisi_pj'];
 $penganggung_jawab = $_POST['penganggung_jawab'];
 $lokasi = $_POST['lokasi'];
 $peserta = $_POST['peserta'];
@@ -26,9 +27,9 @@ if ($action === 'delete' && !empty($eventId)) {
   mysqli_query($conn, $sql);
 } else {
   if (!empty($eventId)) {
-    $sql = "UPDATE tb_jadwal SET kegiatan='$kegiatan', penganggung_jawab='$penganggung_jawab', lokasi_id='$lokasiId', peserta='$peserta', mulai='$mulai', selesai='$selesai' WHERE id='$eventId'";
+    $sql = "UPDATE tb_jadwal SET kegiatan='$kegiatan', divisi_pj_id='$divisi_pj_id', penganggung_jawab='$penganggung_jawab', lokasi_id='$lokasiId', peserta='$peserta', mulai='$mulai', selesai='$selesai' WHERE id='$eventId'";
   } else {
-    $sql = "INSERT INTO tb_jadwal (kegiatan, penganggung_jawab, lokasi_id, peserta, mulai, selesai) VALUES ('$kegiatan', '$penganggung_jawab', '$lokasiId', '$peserta', '$mulai', '$selesai')";
+    $sql = "INSERT INTO tb_jadwal (kegiatan, divisi_pj_id, penganggung_jawab, lokasi_id, peserta, mulai, selesai) VALUES ('$kegiatan', '$divisi_pj_id', '$penganggung_jawab', '$lokasiId', '$peserta', '$mulai', '$selesai')";
   }
 
   mysqli_query($conn, $sql);
@@ -36,4 +37,3 @@ if ($action === 'delete' && !empty($eventId)) {
 
 header('Location: index.php');
 exit;
-?>
