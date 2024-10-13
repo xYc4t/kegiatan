@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include 'con.php';
 
 $eventId = $_POST['eventId'] ?? null;
 $action = $_POST['action'] ?? null;
@@ -39,5 +39,5 @@ if ($action === 'delete' && !empty($eventId)) {
   mysqli_query($conn, $sql);
 }
 
-header('Location: index.php');
+header('Location: index.html');
 exit;

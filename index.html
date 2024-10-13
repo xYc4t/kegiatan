@@ -3,10 +3,10 @@
 
 <head>
     <title>Kalendar Kegiatan</title>
-    <script src='calendar.js'></script>
+    <script src='main.js'></script>
     <link rel="stylesheet" href="lib/bootstrap.min.css">
     <link href='lib/fullcalendar.css' rel='stylesheet' />
-    <script src="lib/jquery-3.2.1.min.js"></script>
+    <script src="lib/jquery.min.js"></script>
     <script src="lib/bootstrap.bundle.min.js"></script>
     <script src='lib/fullcalendar.js'></script>
 </head>
@@ -52,16 +52,7 @@
                         <p>Penanggung Jawab</p>
                         <div class="form-group row">
                             <div class="col-sm-6">
-                                <select id="divisi_pj" name="divisi_pj" class="form-control">
-                                    <option value="" selected disabled hidden>Pilih Divisi</option>
-                                    <?php
-                                    include 'koneksi.php';
-                                    $divisi_pj_query = mysqli_query($conn, "SELECT id, divisi FROM tb_divisi_pj");
-                                    while ($divisi_pj = mysqli_fetch_assoc($divisi_pj_query)) {
-                                        echo '<option value="' . $divisi_pj['id'] . '">' . $divisi_pj['divisi'] . '</option>';
-                                    }
-                                    ?>
-                                </select>
+                                <select id="divisi_pj" name="divisi_pj" class="form-control"></select>
                             </div>
                             <div class="col-sm-6">
                                 <input type="text" id="penganggung_jawab" name="penganggung_jawab" class="form-control" placeholder="Nama">
@@ -80,16 +71,7 @@
                                 </div>
                             </div>
                             <div id="lokasi_sekolah" style="display: block;">
-                                <select id="lokasi" name="lokasi" class="form-control">
-                                    <option value="" selected disabled hidden>Pilih Lokasi di Sekolah</option>
-                                    <?php
-                                    include 'koneksi.php';
-                                    $lokasi_sekolah_query = mysqli_query($conn, "SELECT id, lokasi FROM tb_lokasi WHERE is_sekolah = 1");
-                                    while ($lokasi_sekolah = mysqli_fetch_assoc($lokasi_sekolah_query)) {
-                                        echo '<option value="' . $lokasi_sekolah['id'] . '">' . $lokasi_sekolah['lokasi'] . '</option>';
-                                    }
-                                    ?>
-                                </select>
+                                <select id="lokasiSelect" name="lokasi" class="form-control"></select>
                             </div>
                             <div id="lokasi_luar" style="display: none;">
                                 <input type="text" class="form-control" name="lokasi" id="lokasi" list="lokasiList" placeholder="Lokasi">

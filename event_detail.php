@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include 'con.php';
 
 $eventId = $_GET['id'] ?? null;
 if ($eventId) {
@@ -32,7 +32,7 @@ if ($eventId) {
         <p><strong>Peserta:</strong> <?php echo $event['peserta']; ?></p>
         <p><strong>Mulai:</strong> <?php echo $event['mulai']; ?></p>
         <p><strong>Berakhir:</strong> <?php echo $event['selesai']; ?></p><br>
-        <a href="index.php" class="btn btn-primary">Kembali ke Kalender</a>
+        <a href="index.html" class="btn btn-primary">Kembali ke Kalender</a>
     </div>
 </body>
 

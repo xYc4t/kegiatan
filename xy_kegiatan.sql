@@ -1,6 +1,6 @@
-CREATE DATABASE IF NOT EXISTS db_kegiatan;
+CREATE DATABASE IF NOT EXISTS xy_kegiatan;
 
-USE db_kegiatan;
+USE xy_kegiatan;
 
 DROP TABLE IF EXISTS tb_jadwal;
 DROP TABLE IF EXISTS tb_divisi_pj;

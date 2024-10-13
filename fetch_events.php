@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+include 'con.php';
 $data = mysqli_query($conn, '
     SELECT j.*, l.lokasi, l.is_sekolah 
     FROM tb_jadwal j 

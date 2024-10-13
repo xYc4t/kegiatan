@@ -1,2 +1,3 @@
-Buat conflict checker untuk script penambaha kegiatan.
-Auto set/fill untuk field Penganggung jawab saat menekan event yang sudah ada (update/delete).
+CRITICAL BUG: Tidak bisa membuat/mengubah event dengan lokasi "Di Sekolah" (masih dalam perbaikan).
+Buat conflict checker untuk script penambahan kegiatan.
+Auto set/fill untuk field Penganggung jawab dan lokasi saat menekan event yang sudah ada (update/delete).

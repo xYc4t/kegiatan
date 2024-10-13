@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const currentMonthEventList = document.getElementById('currentMonthEventList');
     const upcomingEventList = document.getElementById('upcomingEventList');
     const monthSelect = document.getElementById('monthSelect');
-    
+
     const calendar = new FullCalendar.Calendar(calendarEl, {
         locale: 'id',
         initialView: 'dayGridMonth',
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ];
 
         monthSelect.innerHTML = '<option value="" disabled selected>Pilih Bulan</option>';
-        
+
         months.forEach((month, index) => {
             const option = document.createElement('option');
             option.value = index;
@@ -43,19 +43,46 @@ document.addEventListener('DOMContentLoaded', function () {
         calendar.gotoDate(new Date(year, selectedMonth, 1));
     });
 
-    function populateLocationDatalist() {
+    function populateDivisiPJSelect() {
+        $.get('fetch_divisipj.php', function(data) {
+        const divisiPJList = JSON.parse(data);
+        const divisiPJSelect = document.getElementById('divisi_pj');
+
+        divisiPJSelect.innerHTML = '<option value="" selected disabled hidden>Pilih Divisi</option>';
+
+        divisiPJList.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.divisi;
+            divisiPJSelect.appendChild(option);
+        });
+    })
+}
+
+    function populateLocationOptions() {
         $.get('fetch_lokasi.php', function(data) {
             const lokasiList = JSON.parse(data);
+
+            const dataSelect = document.getElementById('lokasiSelect');
             const datalist = document.getElementById('lokasiList');
+
+            dataSelect.innerHTML = '<option value="" selected disabled hidden>Pilih Lokasi</option>';
             datalist.innerHTML = '';
-    
-            lokasiList.forEach(lokasi => {
-                const option = document.createElement('option');
-                option.value = lokasi;
-                datalist.appendChild(option);
+
+            lokasiList.forEach(item => {
+                if (item.is_sekolah == 1) {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.lokasi;
+                    dataSelect.appendChild(option);
+                } else {
+                    const option = document.createElement('option');
+                    option.value = item.lokasi;
+                    datalist.appendChild(option);
+                }
             });
-        });
-    }    
+        })
+    }
 
     function handleDateClick(info) {
         resetModal();
@@ -94,18 +121,18 @@ function handleEventClick(info) {
     $('#deleteButton').show();
     $('#eventModal').modal('show');
 }
-    
+
     function updateEventLists() {
         const events = calendar.getEvents();
         const currentMonthStart = new Date(calendar.getDate().getFullYear(), calendar.getDate().getMonth(), 1);
         const nextMonthStart = new Date(currentMonthStart);
         nextMonthStart.setMonth(nextMonthStart.getMonth() + 1);
-    
+
         currentMonthEventList.innerHTML = '';
         upcomingEventList.innerHTML = '';
-    
+
         events.sort((a, b) => new Date(a.start) - new Date(b.start));
-    
+
         const currentMonthEvents = events.filter(event => new Date(event.start) >= currentMonthStart && new Date(event.start) < nextMonthStart);
         if (currentMonthEvents.length > 0) {
             currentMonthEvents.forEach(event => {
@@ -118,9 +145,9 @@ function handleEventClick(info) {
         } else {
             currentMonthEventList.innerHTML = '<li class="list-group-item">Tidak ada kegiatan untuk bulan yang sedang dilihat ^-^</li>';
         }
-    
+
         const upcomingEvent = events.find(event => new Date(event.start) >= new Date());
-    
+
         if (upcomingEvent) {
             const listItem = document.createElement('li');
             listItem.className = 'list-group-item';
@@ -160,5 +187,6 @@ function handleEventClick(info) {
     calendar.render();
     fetchEvents();
     populateMonthSelect();
-    populateLocationDatalist();
+    populateDivisiPJSelect();
+    populateLocationOptions();
 });
