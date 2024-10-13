@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function fetchEvents() {
-        $.get('fetch_events.php', function(data) {
+        $.get('fetch_events.php', function (data) {
             const events = JSON.parse(data);
             calendar.removeAllEvents();
             events.forEach(event => calendar.addEvent(event));
@@ -37,30 +37,58 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    monthSelect.addEventListener('change', function() {
+    monthSelect.addEventListener('change', function () {
         const selectedMonth = parseInt(this.value);
         const year = new Date().getFullYear();
         calendar.gotoDate(new Date(year, selectedMonth, 1));
     });
 
     function populateDivisiPJSelect() {
-        $.get('fetch_divisipj.php', function(data) {
-        const divisiPJList = JSON.parse(data);
-        const divisiPJSelect = document.getElementById('divisi_pj');
+        $.get('fetch_divisipj.php', function (data) {
+            const divisiPJList = JSON.parse(data);
+            const divisiPJSelect = document.getElementById('divisi_pj');
 
-        divisiPJSelect.innerHTML = '<option value="" selected disabled hidden>Pilih Divisi</option>';
+            divisiPJSelect.innerHTML = '<option value="" selected disabled hidden>Pilih Divisi</option>';
 
-        divisiPJList.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.id;
-            option.textContent = item.divisi;
-            divisiPJSelect.appendChild(option);
-        });
-    })
-}
+            divisiPJList.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.divisi;
+                divisiPJSelect.appendChild(option);
+            });
+        })
+    }
+
+    function toggleLokasiInput() {
+        const isSekolah = document.getElementById('lokasi_type_sekolah').checked;
+        const lokasiSekolah = document.getElementById('lokasi_sekolah');
+        const lokasiLuar = document.getElementById('lokasi_luar');
+        const lokasiSelect = document.getElementById('lokasiSelect');
+        const textInput = document.getElementById('lokasi');
+
+        lokasiSekolah.style.display = isSekolah ? 'block' : 'none';
+        lokasiLuar.style.display = isSekolah ? 'none' : 'block';
+
+        lokasiSelect.required = isSekolah;
+        textInput.required = !isSekolah;
+    }
+
+    function setHiddenValue() {
+        const hiddenInput = document.getElementById('hiddenLokasi');
+        const lokasiSelect = document.getElementById('lokasiSelect');
+        const textInput = document.getElementById('lokasi');
+
+        hiddenInput.value = document.getElementById('lokasi_type_sekolah').checked ?
+            lokasiSelect.value : textInput.value;
+    }
+
+    window.toggleLokasiInput = toggleLokasiInput;
+    window.setHiddenValue = setHiddenValue;
+
+    window.onload = toggleLokasiInput;
 
     function populateLocationOptions() {
-        $.get('fetch_lokasi.php', function(data) {
+        $.get('fetch_lokasi.php', function (data) {
             const lokasiList = JSON.parse(data);
 
             const dataSelect = document.getElementById('lokasiSelect');
@@ -92,35 +120,35 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#eventModal').modal('show');
     }
 
-//Jadi berantakan hanya untuk memperbaiki bug dimana saat click event di calendar, jam mulai dan jam berakhir tidak di set dengan benar.
-//Mungkin orang selanjutnya dapat mengoptimalkan kode ini? Good luck.
-function handleEventClick(info) {
-    const event = info.event;
-    const startDate = event.start;
-    const endDate = event.end;
+    function handleEventClick(info) {
+        const event = info.event;
+        const { extendedProps } = event;
 
-    $('#eventId').val(event.id);
-    $('#kegiatan').val(event.title);
-    $('#lokasi').val(event.extendedProps.lokasi);
-    $('#peserta').val(event.extendedProps.peserta);
+        $('#eventId').val(event.id);
+        $('#kegiatan').val(event.title);
+        $('#penganggung_jawab').val(extendedProps.penganggung_jawab || '');
+        $('#peserta').val(extendedProps.peserta || '');
+        $('#mulai').val(event.start.toISOString().slice(0, 16));
+        $('#selesai').val(event.end ? event.end.toISOString().slice(0, 16) : '');
 
-    const startMonth = startDate.getMonth() + 1;
-    const startDay = startDate.getDate();
-    const startHour = startDate.getHours();
-    const startMinute = startDate.getMinutes();
+        if (extendedProps.is_sekolah) {
+            $('#lokasi_type_sekolah').prop('checked', true);
+            $('#lokasiSelect').val(extendedProps.lokasi);
+            $('#lokasi_luar').hide();
+            $('#lokasi_sekolah').show();
+        } else {
+            $('#lokasi_type_luar').prop('checked', true);
+            $('#lokasi').val(extendedProps.lokasi);
+            $('#lokasi_sekolah').hide();
+            $('#lokasi_luar').show();
+        }
 
-    const endMonth = endDate ? endDate.getMonth() + 1 : startMonth;
-    const endDay = endDate ? endDate.getDate() : startDay;
-    const endHour = endDate ? endDate.getHours() : startHour;
-    const endMinute = endDate ? endDate.getMinutes() : startMinute;
+        $('#action').val('update');
+        $('#deleteButton').show();
+        $('#eventModal').modal('show');
 
-    $('#mulai').val(`${startDate.getFullYear()}-${startMonth.toString().padStart(2, '0')}-${startDay.toString().padStart(2, '0')}T${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`);
-    $('#selesai').val(`${endDate ? endDate.getFullYear() : startDate.getFullYear()}-${endMonth.toString().padStart(2, '0')}-${endDay.toString().padStart(2, '0')}T${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`);
-
-    $('#action').val('update');
-    $('#deleteButton').show();
-    $('#eventModal').modal('show');
-}
+        toggleLokasiInput();
+    }
 
     function updateEventLists() {
         const events = calendar.getEvents();
@@ -171,15 +199,16 @@ function handleEventClick(info) {
         $('#selesai').val('');
     }
 
-    $('#eventForm').on('submit', function(e) {
+    $('#eventForm').on('submit', function (e) {
         e.preventDefault();
-        $.post('event_action.php', $(this).serialize(), function() {
+        setHiddenValue();
+        $.post('event_action.php', $(this).serialize(), function () {
             fetchEvents();
             $('#eventModal').modal('hide');
         });
     });
 
-    $('#deleteButton').on('click', function() {
+    $('#deleteButton').on('click', function () {
         $('#action').val('delete');
         $('#eventForm').submit();
     });

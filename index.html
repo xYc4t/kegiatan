@@ -3,7 +3,7 @@
 
 <head>
     <title>Kalendar Kegiatan</title>
-    <script src='main.js'></script>
+    <script src='script.js'></script>
     <link rel="stylesheet" href="lib/bootstrap.min.css">
     <link href='lib/fullcalendar.css' rel='stylesheet' />
     <script src="lib/jquery.min.js"></script>
@@ -42,7 +42,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="event_action.php" method="POST" id="eventForm">
+                    <form action="event_action.php" method="POST" id="eventForm" onsubmit="setHiddenValue();">
                         <input type="hidden" name="eventId" id="eventId">
                         <input type="hidden" name="action" id="action">
                         <div class="form-group">
@@ -62,58 +62,44 @@
                             <label for="lokasi">Lokasi</label>
                             <div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_sekolah" value="sekolah" checked>
+                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_sekolah" value="sekolah" checked onclick="toggleLokasiInput()">
                                     <label class="form-check-label" for="lokasi_type_sekolah">Di Sekolah</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_luar" value="luar">
+                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_luar" value="luar" onclick="toggleLokasiInput()">
                                     <label class="form-check-label" for="lokasi_type_luar">Di Luar</label>
                                 </div>
+
+                                <div id="lokasi_sekolah" style="display: block;">
+                                    <select id="lokasiSelect" name="lokasi" class="form-control" required></select>
+                                </div>
+                                <div id="lokasi_luar" style="display: none;">
+                                    <input type="text" class="form-control" id="lokasi" list="lokasiList" placeholder="Lokasi">
+                                    <datalist id="lokasiList"></datalist>
+                                </div>
+                                <input type="hidden" name="lokasi" id="hiddenLokasi">
                             </div>
-                            <div id="lokasi_sekolah" style="display: block;">
-                                <select id="lokasiSelect" name="lokasi" class="form-control"></select>
+                            <div class="form-group">
+                                <label for="peserta">Peserta</label>
+                                <textarea name="peserta" class="form-control" id="peserta" rows="2" placeholder="Peserta"></textarea>
                             </div>
-                            <div id="lokasi_luar" style="display: none;">
-                                <input type="text" class="form-control" name="lokasi" id="lokasi" list="lokasiList" placeholder="Lokasi">
-                                <datalist id="lokasiList"></datalist>
+                            <div class="form-group">
+                                <label for="mulai">Tanggal Mulai</label>
+                                <input type="datetime-local" class="form-control" name="mulai" id="mulai" required>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="peserta">Peserta</label>
-                            <textarea name="peserta" class="form-control" id="peserta" rows="2" placeholder="Peserta"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="mulai">Tanggal Mulai</label>
-                            <input type="datetime-local" class="form-control" name="mulai" id="mulai" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="selesai">Tanggal Berakhir</label>
-                            <input type="datetime-local" class="form-control" name="selesai" id="selesai" required>
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-success">Simpan</button>
-                            <button type="button" class="btn btn-danger" id="deleteButton" style="display:none;">Hapus</button>
-                        </div>
+                            <div class="form-group">
+                                <label for="selesai">Tanggal Berakhir</label>
+                                <input type="datetime-local" class="form-control" name="selesai" id="selesai" required>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success">Simpan</button>
+                                <button type="button" class="btn btn-danger" id="deleteButton" style="display:none;">Hapus</button>
+                            </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        $(document).ready(function() {
-            $('input[type="radio"][name="lokasi_type"]').change(function() {
-                if (this.value == 'sekolah') {
-                    $('#lokasi_sekolah').show();
-                    $('#lokasi_luar').hide();
-                    $('#lokasi_luar input[name="lokasi"]').removeAttr('required');
-                } else if (this.value == 'luar') {
-                    $('#lokasi_sekolah').hide();
-                    $('#lokasi_luar').show();
-                    $('#lokasi_luar input[name="lokasi"]').attr('required', 'required');
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>

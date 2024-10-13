@@ -1,3 +1,5 @@
 CRITICAL BUG: Tidak bisa membuat/mengubah event dengan lokasi "Di Sekolah" (masih dalam perbaikan).
+[Update]
+Sudah dapat membuat event. Juga dapat mengubah event, jika semua fieldnya diisi ulang. (sedang mencari cara autofill dengan benar).
 Buat conflict checker untuk script penambahan kegiatan.
 Auto set/fill untuk field Penganggung jawab dan lokasi saat menekan event yang sudah ada (update/delete).
