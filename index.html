@@ -41,7 +41,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="event_action.php" method="POST" id="eventForm" onsubmit="setHiddenValue();">
+                    <form action="event_action.php" method="POST" id="eventForm">
                         <input type="hidden" name="eventId" id="eventId">
                         <input type="hidden" name="action" id="action">
                         <div class="form-group">
@@ -61,11 +61,11 @@
                             <label for="lokasi">Lokasi</label>
                             <div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_sekolah" value="sekolah" checked onclick="toggleLokasiInput()">
+                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_sekolah" value="sekolah" checked>
                                     <label class="form-check-label" for="lokasi_type_sekolah">Di Sekolah</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_luar" value="luar" onclick="toggleLokasiInput()">
+                                    <input class="form-check-input" type="radio" name="lokasi_type" id="lokasi_type_luar" value="luar">
                                     <label class="form-check-label" for="lokasi_type_luar">Di Luar</label>
                                 </div>
 

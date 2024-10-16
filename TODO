@@ -1,2 +1,2 @@
 Buat conflict checker untuk script penambahan kegiatan.
-Minor bug: select-option tidak autofill dengan sendirinya, hanya terjadi jika is_sekolah = 1.
+Buat login/auth.

@@ -14,14 +14,8 @@ $mulai = $_POST['mulai'];
 $selesai = $_POST['selesai'];
 
 if ($lokasi_type === 'sekolah') {
-  $result = mysqli_query($conn, "SELECT id FROM tb_lokasi WHERE lokasi = '$lokasi' AND is_sekolah = 1");
-
-  if (mysqli_num_rows($result) > 0) {
-    $lokasiId = mysqli_fetch_assoc($result)['id'];
-  } else {
-    mysqli_query($conn, "INSERT INTO tb_lokasi (lokasi, is_sekolah) VALUES ('$lokasi', 1)");
-    $lokasiId = mysqli_insert_id($conn);
-  }
+  $result = mysqli_query($conn, "SELECT id FROM tb_lokasi WHERE id = '$lokasi' AND is_sekolah = 1");
+  $lokasiId = mysqli_fetch_assoc($result)['id'];
 } else {
   $result = mysqli_query($conn, "SELECT id FROM tb_lokasi WHERE lokasi = '$lokasi' AND is_sekolah = 0");
 
