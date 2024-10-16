@@ -1,14 +1,15 @@
 <?php
 include 'con.php';
 
-$query = '
+$query = "
     SELECT j.id, j.kegiatan, j.mulai, j.selesai, j.peserta, 
-           l.lokasi, l.is_sekolah, 
-           d.divisi AS divisi_pj
+           l.lokasi, l.is_sekolah, l.id AS lokasi_id, 
+           d.divisi AS divisi_pj, d.id AS divisi_pj_id, 
+           j.penganggung_jawab
     FROM tb_jadwal j 
-    JOIN tb_lokasi l ON j.lokasi_id = l.id
-    JOIN tb_divisi_pj d ON j.divisi_pj_id = d.id
-';
+    LEFT JOIN tb_lokasi l ON j.lokasi_id = l.id
+    LEFT JOIN tb_divisi_pj d ON j.divisi_pj_id = d.id
+";
 
 $data = mysqli_query($conn, $query);
 $events = [];
@@ -21,8 +22,10 @@ if ($data) {
             'start' => $d['mulai'],
             'end' => $d['selesai'],
             'extendedProps' => [
+                'divisi_pj_id' => $d['divisi_pj_id'],
                 'divisi_pj' => $d['divisi_pj'],
                 'penganggung_jawab' => $d['penganggung_jawab'],
+                'lokasi_id' => $d['lokasi_id'],
                 'lokasi' => $d['lokasi'],
                 'is_sekolah' => $d['is_sekolah'],
                 'peserta' => $d['peserta']

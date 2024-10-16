@@ -5,10 +5,9 @@
     <title>Kalendar Kegiatan</title>
     <script src='script.js'></script>
     <link rel="stylesheet" href="lib/bootstrap.min.css">
-    <link href='lib/fullcalendar.css' rel='stylesheet' />
+    <script src="lib/fullcalendar.min.js"></script>
     <script src="lib/jquery.min.js"></script>
     <script src="lib/bootstrap.bundle.min.js"></script>
-    <script src='lib/fullcalendar.js'></script>
 </head>
 
 <body>
@@ -24,10 +23,10 @@
                 <div class="alert alert-warning" role="alert">
                     <h4>Daftar Kegiatan</h4>
                 </div>
-                <h5>Kegiatan Bulan Ini</h5>
-                <ul class="list-group" id="currentMonthEventList" style="margin-bottom: 16px"></ul>
                 <h5>Kegiatan Mendatang</h5>
                 <ul class="list-group" id="upcomingEventList"></ul>
+                <h5>Kegiatan Dalam 2 Minggu</h5>
+                <ul class="list-group" id="twoWeeksFromNowEventList" style="margin-bottom: 16px"></ul>
             </div>
         </div>
     </div>

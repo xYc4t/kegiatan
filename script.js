@@ -1,8 +1,53 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const calendarEl = document.getElementById('calendar');
-    const currentMonthEventList = document.getElementById('currentMonthEventList');
-    const upcomingEventList = document.getElementById('upcomingEventList');
-    const monthSelect = document.getElementById('monthSelect');
+document.addEventListener('DOMContentLoaded', () => {
+    const calendarEl = document.getElementById('calendar'),
+          twoWeeksFromNowEventList = document.getElementById('twoWeeksFromNowEventList'),
+          monthSelect = document.getElementById('monthSelect');
+
+    const handleDateClick = info => {
+        resetModal();
+        document.getElementById('mulai').value = `${info.dateStr}T07:00`;
+        document.getElementById('selesai').value = `${info.dateStr}T08:00`;
+        $('#eventModal').modal('show');
+    };
+
+    const handleEventClick = info => {
+        const event = info.event, { extendedProps } = event;
+        $('#eventId').val(event.id);
+        $('#kegiatan').val(event.title);
+        $('#divisi_pj').val(extendedProps.divisi_pj_id || '');
+        $('#penganggung_jawab').val(extendedProps.penganggung_jawab || '');
+        $('#peserta').val(extendedProps.peserta || '');
+        $('#mulai').val(event.start.toISOString().slice(0, 16));
+        $('#selesai').val(event.end ? event.end.toISOString().slice(0, 16) : '');
+        (extendedProps.is_sekolah == 1 ? ()=>{
+            $('#lokasi_type_sekolah').prop('checked', true);
+            $('#lokasiSelect').val(extendedProps.lokasi_id || '');
+        } : ()=>{
+            $('#lokasi_type_luar').prop('checked', true);
+            $('#lokasi').val(extendedProps.lokasi || '');
+        })();
+        $('#action').val('update');
+        $('#deleteButton').show();
+        $('#eventModal').modal('show');
+        toggleLokasiInput();
+    };
+
+    const updateEventLists = () => {
+        const events = calendar.getEvents(),
+              today = new Date(),
+              twoWeeksLater = new Date(today);
+        twoWeeksLater.setDate(today.getDate() + 14);
+
+        const filteredEvents = events.sort((a, b) => new Date(a.start) - new Date(b.start));
+        const twoWeeksEvents = filteredEvents.filter(e => new Date(e.start) >= today && new Date(e.start) < twoWeeksLater);
+
+        twoWeeksFromNowEventList.innerHTML = twoWeeksEvents.length ? twoWeeksEvents.map(e => `<li class="list-group-item" onclick="location.href='event_detail.php?id=${e.id}'">${e.start.toLocaleString('id-ID')}\n${e.title}</li>`).join('') :
+            '<li class="list-group-item">Tidak ada kegiatan dalam dua minggu ke depan. ^-^</li>';
+
+        const upcomingEvent = filteredEvents.find(e => new Date(e.start) >= today);
+        upcomingEventList.innerHTML = upcomingEvent ? `<li class="list-group-item" onclick="location.href='event_detail.php?id=${upcomingEvent.id}'">${upcomingEvent.start.toLocaleString('id-ID')}\n${upcomingEvent.title}</li>` :
+            '<li class="list-group-item">Tidak ada kegiatan mendatang :3</li>';
+    };
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
         locale: 'id',
@@ -12,205 +57,75 @@ document.addEventListener('DOMContentLoaded', function () {
         datesSet: updateEventLists,
     });
 
-    function fetchEvents() {
-        $.get('fetch_events.php', function (data) {
+    const fetchData = (url, callback) => $.get(url, data => callback(JSON.parse(data)));
+
+    const fetchEvents = () => {
+        $.get('fetch_events.php', data => {
             const events = JSON.parse(data);
             calendar.removeAllEvents();
             events.forEach(event => calendar.addEvent(event));
             updateEventLists();
         });
-    }
+    };    
 
-    function populateMonthSelect() {
-        const months = [
-            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-        ];
-
-        monthSelect.innerHTML = '<option value="" disabled selected>Pilih Bulan</option>';
-
-        months.forEach((month, index) => {
+    const populateSelect = (select, options, defaultText, valueKey = 'value', textKey = 'text') => {
+        select.innerHTML = `<option value="" disabled selected>${defaultText}</option>`;
+        options.forEach(opt => {
             const option = document.createElement('option');
-            option.value = index;
-            option.innerText = `${month} ${new Date().getFullYear()}`;
-            monthSelect.appendChild(option);
+            option.value = opt[valueKey];
+            option.textContent = opt[textKey];
+            select.appendChild(option);
         });
-    }
+    };
 
-    monthSelect.addEventListener('change', function () {
-        const selectedMonth = parseInt(this.value);
-        const year = new Date().getFullYear();
-        calendar.gotoDate(new Date(year, selectedMonth, 1));
+    const populateMonthSelect = () => {
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        populateSelect(monthSelect, months.map((m, i) => ({ value: i, text: `${m} ${new Date().getFullYear()}` })), 'Pilih Bulan');
+    };
+
+    const populateDivisiPJSelect = () => fetchData('fetch_divisipj.php', divisiPJList => {
+        populateSelect(document.getElementById('divisi_pj'), divisiPJList, 'Pilih Divisi', 'id', 'divisi');
     });
 
-    function populateDivisiPJSelect() {
-        $.get('fetch_divisipj.php', function (data) {
-            const divisiPJList = JSON.parse(data);
-            const divisiPJSelect = document.getElementById('divisi_pj');
-
-            divisiPJSelect.innerHTML = '<option value="" selected disabled hidden>Pilih Divisi</option>';
-
-            divisiPJList.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.textContent = item.divisi;
-                divisiPJSelect.appendChild(option);
-            });
-        })
-    }
-
-    function toggleLokasiInput() {
+    const toggleLokasiInput = () => {
         const isSekolah = document.getElementById('lokasi_type_sekolah').checked;
-        const lokasiSekolah = document.getElementById('lokasi_sekolah');
-        const lokasiLuar = document.getElementById('lokasi_luar');
-        const lokasiSelect = document.getElementById('lokasiSelect');
-        const textInput = document.getElementById('lokasi');
+        document.getElementById('lokasi_sekolah').style.display = isSekolah ? 'block' : 'none';
+        document.getElementById('lokasi_luar').style.display = isSekolah ? 'none' : 'block';
+        document.getElementById('lokasiSelect').required = isSekolah;
+        document.getElementById('lokasi').required = !isSekolah;
+    };
 
-        lokasiSekolah.style.display = isSekolah ? 'block' : 'none';
-        lokasiLuar.style.display = isSekolah ? 'none' : 'block';
+    const setHiddenValue = () => {
+        document.getElementById('hiddenLokasi').value = document.getElementById('lokasi_type_sekolah').checked ?
+            document.getElementById('lokasiSelect').value : document.getElementById('lokasi').value;
+    };
 
-        lokasiSelect.required = isSekolah;
-        textInput.required = !isSekolah;
-    }
+    const populateLocationOptions = () => fetchData('fetch_lokasi.php', lokasiList => {
+        const sekolahOptions = lokasiList.filter(l => l.is_sekolah == 1),
+              luarOptions = lokasiList.filter(l => l.is_sekolah != 1);
+        populateSelect(document.getElementById('lokasiSelect'), sekolahOptions, 'Pilih Lokasi', 'id', 'lokasi');
+        populateSelect(document.getElementById('lokasiList'), luarOptions, 'Pilih Lokasi', 'lokasi', 'lokasi');
+    });
 
-    function setHiddenValue() {
-        const hiddenInput = document.getElementById('hiddenLokasi');
-        const lokasiSelect = document.getElementById('lokasiSelect');
-        const textInput = document.getElementById('lokasi');
-
-        hiddenInput.value = document.getElementById('lokasi_type_sekolah').checked ?
-            lokasiSelect.value : textInput.value;
-    }
-
-    window.toggleLokasiInput = toggleLokasiInput;
-    window.setHiddenValue = setHiddenValue;
-
-    window.onload = toggleLokasiInput;
-
-    function populateLocationOptions() {
-        $.get('fetch_lokasi.php', function (data) {
-            const lokasiList = JSON.parse(data);
-
-            const dataSelect = document.getElementById('lokasiSelect');
-            const datalist = document.getElementById('lokasiList');
-
-            dataSelect.innerHTML = '<option value="" selected disabled hidden>Pilih Lokasi</option>';
-            datalist.innerHTML = '';
-
-            lokasiList.forEach(item => {
-                if (item.is_sekolah == 1) {
-                    const option = document.createElement('option');
-                    option.value = item.id;
-                    option.textContent = item.lokasi;
-                    dataSelect.appendChild(option);
-                } else {
-                    const option = document.createElement('option');
-                    option.value = item.lokasi;
-                    datalist.appendChild(option);
-                }
-            });
-        })
-    }
-
-    function handleDateClick(info) {
-        resetModal();
-        const selectedDate = info.dateStr;
-        document.getElementById('mulai').value = `${selectedDate}T07:00`;
-        document.getElementById('selesai').value = `${selectedDate}T08:00`;
-        $('#eventModal').modal('show');
-    }
-
-    function handleEventClick(info) {
-        const event = info.event;
-        const { extendedProps } = event;
-
-        $('#eventId').val(event.id);
-        $('#kegiatan').val(event.title);
-        $('#penganggung_jawab').val(extendedProps.penganggung_jawab || '');
-        $('#peserta').val(extendedProps.peserta || '');
-        $('#mulai').val(event.start.toISOString().slice(0, 16));
-        $('#selesai').val(event.end ? event.end.toISOString().slice(0, 16) : '');
-
-        if (extendedProps.is_sekolah) {
-            $('#lokasi_type_sekolah').prop('checked', true);
-            $('#lokasiSelect').val(extendedProps.lokasi);
-            $('#lokasi_luar').hide();
-            $('#lokasi_sekolah').show();
-        } else {
-            $('#lokasi_type_luar').prop('checked', true);
-            $('#lokasi').val(extendedProps.lokasi);
-            $('#lokasi_sekolah').hide();
-            $('#lokasi_luar').show();
-        }
-
-        $('#action').val('update');
-        $('#deleteButton').show();
-        $('#eventModal').modal('show');
-
-        toggleLokasiInput();
-    }
-
-    function updateEventLists() {
-        const events = calendar.getEvents();
-        const currentMonthStart = new Date(calendar.getDate().getFullYear(), calendar.getDate().getMonth(), 1);
-        const nextMonthStart = new Date(currentMonthStart);
-        nextMonthStart.setMonth(nextMonthStart.getMonth() + 1);
-
-        currentMonthEventList.innerHTML = '';
-        upcomingEventList.innerHTML = '';
-
-        events.sort((a, b) => new Date(a.start) - new Date(b.start));
-
-        const currentMonthEvents = events.filter(event => new Date(event.start) >= currentMonthStart && new Date(event.start) < nextMonthStart);
-        if (currentMonthEvents.length > 0) {
-            currentMonthEvents.forEach(event => {
-                const listItem = document.createElement('li');
-                listItem.className = 'list-group-item';
-                listItem.innerText = `${event.start.toLocaleString('id-ID')}\n${event.title}`;
-                listItem.onclick = () => window.location.href = `event_detail.php?id=${event.id}`;
-                currentMonthEventList.appendChild(listItem);
-            });
-        } else {
-            currentMonthEventList.innerHTML = '<li class="list-group-item">Tidak ada kegiatan untuk bulan yang sedang dilihat ^-^</li>';
-        }
-
-        const upcomingEvent = events.find(event => new Date(event.start) >= new Date());
-
-        if (upcomingEvent) {
-            const listItem = document.createElement('li');
-            listItem.className = 'list-group-item';
-            listItem.innerText = `${upcomingEvent.start.toLocaleString('id-ID')}\n${upcomingEvent.title}`;
-            listItem.onclick = () => window.location.href = `event_detail.php?id=${upcomingEvent.id}`;
-            upcomingEventList.appendChild(listItem);
-        } else {
-            upcomingEventList.innerHTML = '<li class="list-group-item">Tidak ada kegiatan mendatang :3</li>';
-        }
-    }
-
-    function resetModal() {
-        $('#eventId').val('');
-        $('#action').val('');
+    const resetModal = () => {
+        ['eventId', 'action', 'kegiatan', 'divisi_pj', 'penganggung_jawab', 'lokasi_type_sekolah', 'lokasi_type_luar', 'lokasiSelect',  'lokasi', 'peserta', 'mulai', 'selesai'].forEach(id => $('#' + id).val(''));
         $('#deleteButton').hide();
-        $('#kegiatan').val('');
-        $('#penganggung_jawab').val('');
-        $('#lokasi').val('');
-        $('#peserta').val('');
-        $('#mulai').val('');
-        $('#selesai').val('');
-    }
+    };
 
-    $('#eventForm').on('submit', function (e) {
+    $('#eventForm').on('submit', e => {
         e.preventDefault();
         setHiddenValue();
-        $.post('event_action.php', $(this).serialize(), function () {
+        $.post('event_action.php', $(e.target).serialize(), () => {
             fetchEvents();
             $('#eventModal').modal('hide');
         });
     });
 
-    $('#deleteButton').on('click', function () {
-        $('#action').val('delete');
-        $('#eventForm').submit();
+    $('#deleteButton').on('click', () => $('#action').val('delete') && $('#eventForm').submit());
+
+    monthSelect.addEventListener('change', () => {
+        const year = new Date().getFullYear();
+        calendar.gotoDate(new Date(year, parseInt(monthSelect.value), 1));
     });
 
     calendar.render();
@@ -218,4 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
     populateMonthSelect();
     populateDivisiPJSelect();
     populateLocationOptions();
+    window.toggleLokasiInput = toggleLokasiInput;
+    window.setHiddenValue = setHiddenValue;
 });
