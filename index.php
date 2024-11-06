@@ -4,6 +4,12 @@ if (!isset($_SESSION['user'])) {
     header('Location: login.php');
     exit;
 }
+
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -18,6 +24,15 @@ if (!isset($_SESSION['user'])) {
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Kalendar Kegiatan</a>
+            <div class="d-flex justify-content-end">
+                <a href="?logout=true" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-4">
         <div class="row">
             <div class="col-lg-8">
