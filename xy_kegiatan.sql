@@ -2,9 +2,16 @@ CREATE DATABASE IF NOT EXISTS xy_kegiatan;
 
 USE xy_kegiatan;
 
+DROP TABLE IF EXISTS tb_user;
 DROP TABLE IF EXISTS tb_jadwal;
 DROP TABLE IF EXISTS tb_divisi_pj;
 DROP TABLE IF EXISTS tb_lokasi;
+
+CREATE TABLE tb_user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
 
 CREATE TABLE tb_lokasi (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -19,11 +26,11 @@ CREATE TABLE tb_divisi_pj (
 
 CREATE TABLE tb_jadwal (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    kegiatan VARCHAR(100) NOT NULL,
+    kegiatan VARCHAR(255) NOT NULL,
     mulai DATETIME NOT NULL,
     selesai DATETIME NOT NULL,
     divisi_pj_id INT NOT NULL,
-    penganggung_jawab VARCHAR(50) NOT NULL,
+    penganggung_jawab VARCHAR(70) NOT NULL,
     lokasi_id INT NOT NULL,
     peserta TEXT,
     FOREIGN KEY (divisi_pj_id) REFERENCES tb_divisi_pj(id) ON DELETE CASCADE,

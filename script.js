@@ -43,6 +43,25 @@ document.addEventListener('DOMContentLoaded', function () {
         calendar.gotoDate(new Date(year, selectedMonth, 1));
     });
 
+    function updateEventLists() {
+        const events = calendar.getEvents(),
+            today = new Date(),
+            twoWeeksLater = new Date(today);
+        twoWeeksLater.setDate(today.getDate() + 14);
+
+        const filteredEvents = events.sort((a, b) => new Date(a.start) - new Date(b.start));
+        const twoWeeksEvents = filteredEvents.filter(e => new Date(e.start) >= today && new Date(e.start) < twoWeeksLater);
+
+        twoWeeksFromNowEventList.innerHTML = twoWeeksEvents.length
+            ? twoWeeksEvents.map(e => `<li class="list-group-item" onclick="location.href='event_detail.php?id=${e.id}'">${e.start.toLocaleString('id-ID')}<br>${e.title}</li>`).join('')
+            : '<li class="list-group-item">Tidak ada kegiatan dalam dua minggu ke depan. ^-^</li>';
+
+        const upcomingEvent = filteredEvents.find(e => new Date(e.start) >= today);
+        upcomingEventList.innerHTML = upcomingEvent
+            ? `<li class="list-group-item" onclick="location.href='event_detail.php?id=${upcomingEvent.id}'">${upcomingEvent.start.toLocaleString('id-ID')}<br>${upcomingEvent.title}</li>`
+            : '<li class="list-group-item">Tidak ada kegiatan mendatang :3</li>';
+    };
+
     function populateDivisiPJSelect() {
         $.get('fetch_divisipj.php', function (data) {
             const divisiPJList = JSON.parse(data);
@@ -158,25 +177,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         toggleLokasiInput();
     }
-
-    function updateEventLists() {
-        const events = calendar.getEvents(),
-            today = new Date(),
-            twoWeeksLater = new Date(today);
-        twoWeeksLater.setDate(today.getDate() + 14);
-
-        const filteredEvents = events.sort((a, b) => new Date(a.start) - new Date(b.start));
-        const twoWeeksEvents = filteredEvents.filter(e => new Date(e.start) >= today && new Date(e.start) < twoWeeksLater);
-
-        twoWeeksFromNowEventList.innerHTML = twoWeeksEvents.length
-            ? twoWeeksEvents.map(e => `<li class="list-group-item" onclick="location.href='event_detail.php?id=${e.id}'">${e.start.toLocaleString('id-ID')}<br>${e.title}</li>`).join('')
-            : '<li class="list-group-item">Tidak ada kegiatan dalam dua minggu ke depan. ^-^</li>';
-
-        const upcomingEvent = filteredEvents.find(e => new Date(e.start) >= today);
-        upcomingEventList.innerHTML = upcomingEvent
-            ? `<li class="list-group-item" onclick="location.href='event_detail.php?id=${upcomingEvent.id}'">${upcomingEvent.start.toLocaleString('id-ID')}<br>${upcomingEvent.title}</li>`
-            : '<li class="list-group-item">Tidak ada kegiatan mendatang :3</li>';
-    };
 
     function resetModal() {
         $('#eventId').val('');
