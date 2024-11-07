@@ -45,7 +45,7 @@ CREATE TABLE tb_jadwal (
 );
 
 
--- DUMMY START HERE --
+-- DUMMY START HERE
 
 
 INSERT INTO tb_user (username, password) VALUES
